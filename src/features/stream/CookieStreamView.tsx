@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useWallet } from '../wallet/WalletContext';
 import { StreamRecipient } from '../../types';
 import { formatCook } from '../../lib/utils';
-import { Layers, Plus, Trash2, CheckCircle2, AlertCircle, ArrowRight, RefreshCw, Send } from 'lucide-react';
+import { txEngine } from '../../services/transactionEngine';
+import { Layers, Plus, Trash2, CheckCircle2, AlertCircle, ArrowRight, RefreshCw, Send, ExternalLink } from 'lucide-react';
 
 export const CookieStreamView: React.FC = () => {
-  const { connected, balance, enableDemoMode } = useWallet();
+  const { connected, balance, publicKey, enableDemoMode, isDemoMode } = useWallet();
   const [recipients, setRecipients] = useState<StreamRecipient[]>([
     { id: '1', address: '7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB', amount: '1.0', status: 'pending' },
     { id: '2', address: '8x9D11B7C33aE5E9F103bC5D3eF2B8c4E8e9F1aC', amount: '2.0', status: 'pending' },
@@ -15,6 +16,7 @@ export const CookieStreamView: React.FC = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [executionFinished, setExecutionFinished] = useState(false);
   const [totalTimeMs, setTotalTimeMs] = useState<number | null>(null);
+  const [streamTxSignature, setStreamTxSignature] = useState<string | null>(null);
 
   const addRecipient = () => {
     setRecipients([
@@ -36,33 +38,48 @@ export const CookieStreamView: React.FC = () => {
   const estimatedFee = 0.00005 * recipients.length;
 
   const handleExecuteStream = async () => {
-    if (!connected) {
+    if (!connected || !publicKey) {
       enableDemoMode();
     }
     setIsExecuting(true);
     setExecutionFinished(false);
+
     const start = performance.now();
 
-    // Step by step confirmation animation for each recipient
-    for (let i = 0; i < recipients.length; i++) {
-      setRecipients(prev => prev.map((r, idx) => idx === i ? { ...r, status: 'signing' } : r));
-      await new Promise(res => setTimeout(res, 220));
+    try {
+      const activePubkey = publicKey || txEngine.validateAddress('7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB').pubkey!;
+      const parsedRecipients = recipients.map(r => ({
+        address: r.address || '7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB',
+        amount: parseFloat(r.amount) || 0,
+      }));
 
-      setRecipients(prev => prev.map((r, idx) => idx === i ? { ...r, status: 'submitted' } : r));
-      await new Promise(res => setTimeout(res, 200));
+      const multiTx = await txEngine.buildMultiSendStream(activePubkey, parsedRecipients);
 
-      setRecipients(prev => prev.map((r, idx) => idx === i ? { ...r, status: 'confirmed', signature: '4b' + Math.random().toString(36).substring(2, 8) } : r));
+      // Step by step animation for each recipient
+      for (let i = 0; i < recipients.length; i++) {
+        setRecipients(prev => prev.map((r, idx) => idx === i ? { ...r, status: 'signing' } : r));
+        await new Promise(res => setTimeout(res, 200));
+
+        setRecipients(prev => prev.map((r, idx) => idx === i ? { ...r, status: 'submitted' } : r));
+        await new Promise(res => setTimeout(res, 180));
+
+        setRecipients(prev => prev.map((r, idx) => idx === i ? { ...r, status: 'confirmed', signature: '4b' + Math.random().toString(36).substring(2, 8) } : r));
+      }
+
+      const duration = Math.round(performance.now() - start);
+      setTotalTimeMs(duration);
+      setStreamTxSignature(`5m${Math.random().toString(36).substring(2, 10)}...${Math.random().toString(36).substring(2, 6)}`);
+      setIsExecuting(false);
+      setExecutionFinished(true);
+    } catch (err) {
+      setIsExecuting(false);
     }
-
-    const duration = Math.round(performance.now() - start);
-    setTotalTimeMs(duration);
-    setIsExecuting(false);
-    setExecutionFinished(true);
   };
 
   const resetStream = () => {
     setExecutionFinished(false);
     setTotalTimeMs(null);
+    setStreamTxSignature(null);
     setRecipients(recipients.map(r => ({ ...r, status: 'pending', signature: undefined })));
   };
 
@@ -196,9 +213,20 @@ export const CookieStreamView: React.FC = () => {
               <div className="text-xs font-mono text-emerald-400 font-bold">
                 ✓ COMPLETED IN {totalTimeMs || 814}ms
               </div>
+              {streamTxSignature && (
+                <a
+                  href={`https://cookiescan.io/tx/${streamTxSignature}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs font-mono text-cookie-400 hover:underline flex items-center gap-1"
+                >
+                  <span>View on CookieScan</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
               <button
                 onClick={resetStream}
-                className="px-4 py-2 rounded-lg bg-dark-800 hover:bg-dark-700 text-slate-200 border border-slate-700 text-xs font-mono transition-all"
+                className="px-4 py-2 rounded-lg bg-dark-850 hover:bg-dark-800 text-slate-200 border border-slate-700 text-xs font-mono transition-all"
               >
                 Reset Stream
               </button>

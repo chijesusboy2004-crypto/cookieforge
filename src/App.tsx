@@ -14,12 +14,14 @@ import { ObservatoryView } from './features/network/ObservatoryView';
 import { DevTerminalView } from './features/terminal/DevTerminalView';
 import { SwapView } from './features/swap/SwapView';
 import { QuestsModal } from './features/missions/QuestsModal';
+import { CookieCopilotModal } from './features/ai/CookieCopilotModal';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavItemId>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [questsOpen, setQuestsOpen] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -34,6 +36,7 @@ export const App: React.FC = () => {
         <Navbar
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           onOpenMissions={() => setQuestsOpen(true)}
+          onOpenCopilot={() => setCopilotOpen(true)}
         />
 
         {/* Main Shell: Sidebar + Content Workspace */}
@@ -66,6 +69,13 @@ export const App: React.FC = () => {
           isOpen={questsOpen}
           onClose={() => setQuestsOpen(false)}
           onSelectQuest={(tab) => setCurrentTab(tab as NavItemId)}
+        />
+
+        {/* Cookie Copilot AI Modal */}
+        <CookieCopilotModal
+          isOpen={copilotOpen}
+          onClose={() => setCopilotOpen(false)}
+          onNavigateTab={(tab) => setCurrentTab(tab as NavItemId)}
         />
 
       </div>

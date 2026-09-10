@@ -9,7 +9,7 @@ import {
   LogOut, 
   ExternalLink, 
   Sparkles, 
-  AlertCircle,
+  Bot,
   Menu,
   ChevronDown
 } from 'lucide-react';
@@ -17,10 +17,11 @@ import {
 interface NavbarProps {
   onToggleSidebar?: () => void;
   onOpenMissions?: () => void;
+  onOpenCopilot?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onOpenMissions }) => {
-  const { connected, connecting, address, balance, connect, disconnect, isDemoMode, enableDemoMode, isNightlyInstalled } = useWallet();
+export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onOpenMissions, onOpenCopilot }) => {
+  const { connected, connecting, address, balance, connect, disconnect, isDemoMode, enableDemoMode } = useWallet();
   const { health } = useNetworkHealth();
   const [copied, setCopied] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -70,7 +71,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onOpenMissions 
           </div>
         </div>
 
-        {/* Center: Live Chain Status Badge */}
+        {/* Center: Live Chain Status Badge & AI Copilot */}
         <div className="hidden md:flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-dark-900 border border-cookie-500/20 text-xs font-mono">
             <span className={`w-2 h-2 rounded-full ${health.status === 'online' ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-amber-400'}`} />
@@ -80,6 +81,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onOpenMissions 
             <span className="text-slate-500">|</span>
             <span className="text-emerald-400">{health.rpcLatencyMs}ms</span>
           </div>
+
+          {onOpenCopilot && (
+            <button
+              onClick={onOpenCopilot}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-cookie-500/15 to-purple-500/15 hover:from-cookie-500/25 hover:to-purple-500/25 border border-cookie-500/30 text-xs font-medium text-cookie-300 transition-colors shadow-cookie-glow"
+            >
+              <Bot className="w-3.5 h-3.5 text-cookie-400" />
+              <span>AI Copilot</span>
+            </button>
+          )}
 
           {onOpenMissions && (
             <button

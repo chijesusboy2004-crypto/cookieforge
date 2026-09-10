@@ -3,15 +3,18 @@ import { useWallet } from '../wallet/WalletContext';
 import { useNetworkHealth } from '../../hooks/useNetworkHealth';
 import { formatMs } from '../../lib/utils';
 import { ProofRecord } from '../../types';
-import { Zap, Play, CheckCircle2, Clock, AlertTriangle, ExternalLink, RefreshCw } from 'lucide-react';
+import { txEngine } from '../../services/transactionEngine';
+import { Zap, Play, CheckCircle2, Clock, AlertTriangle, ExternalLink, RefreshCw, Cpu } from 'lucide-react';
 
 export const ProofOfCookieView: React.FC = () => {
-  const { connected, address, isDemoMode, connect, enableDemoMode } = useWallet();
+  const { connected, address, publicKey, isDemoMode, enableDemoMode } = useWallet();
   const { health } = useNetworkHealth();
 
   const [running, setRunning] = useState(false);
   const [currentStep, setCurrentStep] = useState<string | null>(null);
   const [latestDuration, setLatestDuration] = useState<number | null>(null);
+  const [latestSlot, setLatestSlot] = useState<number | null>(null);
+  const [latestSignature, setLatestSignature] = useState<string | null>(null);
   const [history, setHistory] = useState<ProofRecord[]>([
     { id: '1', timestamp: Date.now() - 3600000, durationMs: 681, slot: 4820901, signature: '5v9K...P81a', status: 'confirmed' },
     { id: '2', timestamp: Date.now() - 7200000, durationMs: 742, slot: 4819512, signature: '3x2B...L91b', status: 'confirmed' },
@@ -20,37 +23,34 @@ export const ProofOfCookieView: React.FC = () => {
   ]);
 
   const runProof = async () => {
-    if (!connected) {
+    if (!connected || !publicKey) {
       enableDemoMode();
     }
     setRunning(true);
     setLatestDuration(null);
 
-    const startTime = performance.now();
-
     try {
-      setCurrentStep('1/4: Building Memo Transaction Payload...');
-      await new Promise(r => setTimeout(r, 120));
+      const activePubkey = publicKey || txEngine.validateAddress('7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB').pubkey!;
+      const memoContent = `Proof-of-Cookie:${Date.now()}`;
+      const tx = await txEngine.buildProofMemo(activePubkey, memoContent);
 
-      setCurrentStep('2/4: Requesting Nightly Signature...');
-      await new Promise(r => setTimeout(r, 280));
+      const result = await txEngine.executePipeline(
+        tx,
+        (update) => setCurrentStep(`${update.step}: ${update.message}`),
+        isDemoMode || !window.nightly?.solana
+      );
 
-      setCurrentStep('3/4: Broadcasting to rpc.cookiescan.io...');
-      await new Promise(r => setTimeout(r, 150));
-
-      setCurrentStep('4/4: Awaiting SVM Slot Confirmation...');
-      await new Promise(r => setTimeout(r, 160));
-
-      const totalTime = Math.round(performance.now() - startTime);
-      setLatestDuration(totalTime);
+      setLatestDuration(result.durationMs);
+      setLatestSlot(result.slot);
+      setLatestSignature(result.signature);
       setCurrentStep(null);
 
       const newRecord: ProofRecord = {
         id: Date.now().toString(),
         timestamp: Date.now(),
-        durationMs: totalTime,
-        slot: health.slot,
-        signature: `5c${Math.random().toString(36).substring(2, 10)}...${Math.random().toString(36).substring(2, 6)}`,
+        durationMs: result.durationMs,
+        slot: result.slot,
+        signature: result.signature,
         status: 'confirmed',
       };
 
@@ -84,7 +84,7 @@ export const ProofOfCookieView: React.FC = () => {
               Proof-of-Cookie <span className="bg-gradient-to-r from-cookie-400 to-amber-500 bg-clip-text text-transparent">Latency Engine</span>
             </h1>
             <p className="text-sm text-slate-400 max-w-xl">
-              Measure a real Cookie Chain transaction from signing to sub-second on-chain confirmation. Proves Cookie Chain throughput in real-time.
+              Measure a real Cookie Chain transaction from signing to sub-second on-chain confirmation. Live stopwatch for judges and builders.
             </p>
           </div>
 
@@ -117,7 +117,7 @@ export const ProofOfCookieView: React.FC = () => {
 
           <div className="text-5xl sm:text-7xl font-mono font-extrabold tracking-tight bg-gradient-to-r from-cookie-300 via-amber-400 to-emerald-400 bg-clip-text text-transparent">
             {running ? (
-              <span className="animate-pulse text-amber-400">MEASURING...</span>
+              <span className="animate-pulse text-amber-400">BENCHMARKING...</span>
             ) : latestDuration ? (
               formatMs(latestDuration)
             ) : (
@@ -133,9 +133,22 @@ export const ProofOfCookieView: React.FC = () => {
           )}
 
           {!running && latestDuration && (
-            <div className="mt-4 flex items-center justify-center gap-2 text-xs font-mono text-emerald-400">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Transaction confirmed at Slot #{health.slot.toLocaleString()}</span>
+            <div className="mt-4 flex flex-col items-center gap-1.5 text-xs font-mono text-emerald-400">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Transaction confirmed at Slot #{latestSlot?.toLocaleString() || health.slot.toLocaleString()}</span>
+              </div>
+              {latestSignature && (
+                <a
+                  href={`https://cookiescan.io/tx/${latestSignature}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-cookie-400 hover:underline flex items-center gap-1 mt-1"
+                >
+                  <span>View Proof on CookieScan ({latestSignature.slice(0, 8)}...)</span>
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
             </div>
           )}
         </div>
@@ -151,7 +164,7 @@ export const ProofOfCookieView: React.FC = () => {
             <p className="text-xl font-bold font-mono text-emerald-400 mt-1">{fastestDuration}ms</p>
           </div>
           <div className="p-4 rounded-xl bg-dark-950/60 border border-slate-800 text-center">
-            <span className="text-[11px] text-slate-400 font-mono">CONFIRMATION COMMITMENT</span>
+            <span className="text-[11px] text-slate-400 font-mono">COMMITMENT LEVEL</span>
             <p className="text-xl font-bold font-mono text-cookie-300 mt-1">Confirmed</p>
           </div>
         </div>
