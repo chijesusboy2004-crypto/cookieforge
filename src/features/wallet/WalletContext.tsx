@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+﻿import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { PublicKey } from '@solana/web3.js';
 import { WalletState } from '../../types';
 import { walletService } from '../../services/walletService';
@@ -16,7 +16,7 @@ interface WalletContextType extends WalletState {
 const WalletContext = createContext<WalletContextType | null>(null);
 
 // Demo address for judges who don't have Nightly installed
-const DEMO_PUBLIC_KEY = new PublicKey('7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB');
+const DEMO_PUBLIC_KEY = new PublicKey('Cook1e1111111111111111111111111111111111111');
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [wallet, setWallet] = useState<WalletState>({

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useWallet } from '../wallet/WalletContext';
 import { StreamRecipient } from '../../types';
 import { formatCook } from '../../lib/utils';
@@ -8,9 +8,9 @@ import { Layers, Plus, Trash2, CheckCircle2, AlertCircle, ArrowRight, RefreshCw,
 export const CookieStreamView: React.FC = () => {
   const { connected, balance, publicKey, enableDemoMode, isDemoMode } = useWallet();
   const [recipients, setRecipients] = useState<StreamRecipient[]>([
-    { id: '1', address: '7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB', amount: '1.0', status: 'pending' },
-    { id: '2', address: '8x9D11B7C33aE5E9F103bC5D3eF2B8c4E8e9F1aC', amount: '2.0', status: 'pending' },
-    { id: '3', address: '9P2AC3D8E44bF6F0A214cD6E4fF3C9d5F9f0A2bE', amount: '5.0', status: 'pending' },
+    { id: '1', address: 'CDyYUYZAsAEbzZBzifUeRKbi6URw8yzvquM8Tbp1XfDa', amount: '1.0', status: 'pending' },
+    { id: '2', address: '6uYGkkuNt3ugeE3BGYH91fVbBhxrNQr8NfApupRsxHnQ', amount: '2.0', status: 'pending' },
+    { id: '3', address: '5ZVqWeHqMhHoYUtbJ1yw6Ho8uELAq6JNZWQqENTovx47', amount: '5.0', status: 'pending' },
   ]);
 
   const [isExecuting, setIsExecuting] = useState(false);
@@ -47,9 +47,9 @@ export const CookieStreamView: React.FC = () => {
     const start = performance.now();
 
     try {
-      const activePubkey = publicKey || txEngine.validateAddress('7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB').pubkey!;
+      const activePubkey = publicKey || txEngine.validateAddress('CDyYUYZAsAEbzZBzifUeRKbi6URw8yzvquM8Tbp1XfDa').pubkey!;
       const parsedRecipients = recipients.map(r => ({
-        address: r.address || '7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB',
+        address: r.address || 'CDyYUYZAsAEbzZBzifUeRKbi6URw8yzvquM8Tbp1XfDa',
         amount: parseFloat(r.amount) || 0,
       }));
 

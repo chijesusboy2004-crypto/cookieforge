@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useWallet } from '../wallet/WalletContext';
 import { useNetworkHealth } from '../../hooks/useNetworkHealth';
 import { formatMs } from '../../lib/utils';
@@ -30,7 +30,7 @@ export const ProofOfCookieView: React.FC = () => {
     setLatestDuration(null);
 
     try {
-      const activePubkey = publicKey || txEngine.validateAddress('7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB').pubkey!;
+      const activePubkey = publicKey || txEngine.validateAddress('Cook1e1111111111111111111111111111111111111').pubkey!;
       const memoContent = `Proof-of-Cookie:${Date.now()}`;
       const tx = await txEngine.buildProofMemo(activePubkey, memoContent);
 

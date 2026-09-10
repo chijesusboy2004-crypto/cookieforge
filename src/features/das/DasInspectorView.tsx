@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Binary, Search, ShieldCheck, ExternalLink, Sparkles, Database } from 'lucide-react';
 
 export const DasInspectorView: React.FC = () => {
@@ -9,7 +9,7 @@ export const DasInspectorView: React.FC = () => {
     id: assetId || 'CookiePuff#4821',
     name: 'CookiePuff Pioneer #4821',
     symbol: 'PUFF',
-    owner: '7x4FD2B9A21C8dE7F893aB4C2eF1A9b3D7e8F9aB',
+    owner: 'Cook1e1111111111111111111111111111111111111',
     creator: 'CookieDAO Authority',
     collection: 'Cookie Chain Genesis Citizens',
     standard: 'Token-2022 / Metaplex Core',
