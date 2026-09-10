@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </button>
 
                     <a
-                      href={`https://cookiescan.io/account/${address}`}
+                      href={`https://cookiescan.io/address/${address}`}
                       target="_blank"
                       rel="noreferrer"
                       className="w-full flex items-center gap-2 px-3 py-2 text-xs rounded-lg hover:bg-dark-800 text-slate-300 transition-colors"

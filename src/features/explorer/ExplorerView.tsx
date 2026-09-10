@@ -104,7 +104,7 @@ export const ExplorerView: React.FC<ExplorerViewProps> = ({ initialQuery = '' })
                 </h3>
               </div>
               <a
-                href={`https://cookiescan.io/account/${accountData.address}`}
+                href={`https://cookiescan.io/address/${accountData.address}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-dark-850 hover:bg-dark-800 text-slate-300 border border-slate-700 text-xs font-mono self-start"
