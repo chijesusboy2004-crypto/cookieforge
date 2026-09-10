@@ -18,10 +18,16 @@ interface NavbarProps {
   onToggleSidebar?: () => void;
   onOpenMissions?: () => void;
   onOpenCopilot?: () => void;
+  onOpenWalletModal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onOpenMissions, onOpenCopilot }) => {
-  const { connected, connecting, address, balance, connect, disconnect, isDemoMode, enableDemoMode } = useWallet();
+export const Navbar: React.FC<NavbarProps> = ({ 
+  onToggleSidebar, 
+  onOpenMissions, 
+  onOpenCopilot, 
+  onOpenWalletModal 
+}) => {
+  const { connected, connecting, address, balance, disconnect, isDemoMode, enableDemoMode, isNightlyInstalled } = useWallet();
   const { health } = useNetworkHealth();
   const [copied, setCopied] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -117,13 +123,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar, onOpenMissions,
               <button
                 onClick={enableDemoMode}
                 className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-300 bg-dark-850 hover:bg-dark-800 border border-slate-700/80 transition-colors"
-                title="Preview app without a wallet"
+                title="Preview app with simulated balance"
               >
                 Explore Demo
               </button>
 
               <button
-                onClick={connect}
+                onClick={onOpenWalletModal}
                 disabled={connecting}
                 className="relative group flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-cookie-500 to-amber-600 hover:from-cookie-400 hover:to-amber-500 text-dark-950 font-bold text-xs tracking-wide shadow-cookie-glow transition-all active:scale-95 disabled:opacity-50"
               >

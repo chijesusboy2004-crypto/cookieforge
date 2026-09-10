@@ -45,13 +45,15 @@ export class WalletService {
   public async connect(): Promise<{ publicKey: PublicKey; balance: number }> {
     const provider = this.getProvider();
     if (!provider) {
-      throw new Error('Nightly Wallet not detected. Please install Nightly from nightly.app or use Demo Mode.');
+      throw new Error('Nightly Wallet not detected. Please install Nightly from nightly.app or explore in Demo Mode.');
     }
 
     try {
       const resp = await provider.connect();
-      const pubkey = provider.publicKey || resp?.publicKey;
-      if (!pubkey) throw new Error('Failed to retrieve public key from wallet');
+      const rawPubkey = provider.publicKey || resp?.publicKey;
+      if (!rawPubkey) throw new Error('Failed to retrieve public key from wallet');
+
+      const pubkey = rawPubkey instanceof PublicKey ? rawPubkey : new PublicKey(rawPubkey.toString());
 
       const balance = await cookieRpc.getBalance(pubkey);
       return { publicKey: pubkey, balance };
@@ -66,7 +68,11 @@ export class WalletService {
   public async disconnect(): Promise<void> {
     const provider = this.getProvider();
     if (provider && provider.disconnect) {
-      await provider.disconnect();
+      try {
+        await provider.disconnect();
+      } catch (e) {
+        // Silently handle
+      }
     }
   }
 

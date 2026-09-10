@@ -15,6 +15,7 @@ import { DevTerminalView } from './features/terminal/DevTerminalView';
 import { SwapView } from './features/swap/SwapView';
 import { QuestsModal } from './features/missions/QuestsModal';
 import { CookieCopilotModal } from './features/ai/CookieCopilotModal';
+import { WalletModal } from './components/wallet/WalletModal';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<NavItemId>('dashboard');
@@ -22,6 +23,7 @@ export const App: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [questsOpen, setQuestsOpen] = useState(false);
   const [copilotOpen, setCopilotOpen] = useState(false);
+  const [walletModalOpen, setWalletModalOpen] = useState(false);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -37,6 +39,7 @@ export const App: React.FC = () => {
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
           onOpenMissions={() => setQuestsOpen(true)}
           onOpenCopilot={() => setCopilotOpen(true)}
+          onOpenWalletModal={() => setWalletModalOpen(true)}
         />
 
         {/* Main Shell: Sidebar + Content Workspace */}
@@ -76,6 +79,12 @@ export const App: React.FC = () => {
           isOpen={copilotOpen}
           onClose={() => setCopilotOpen(false)}
           onNavigateTab={(tab) => setCurrentTab(tab as NavItemId)}
+        />
+
+        {/* Wallet Connection / Nightly Modal */}
+        <WalletModal
+          isOpen={walletModalOpen}
+          onClose={() => setWalletModalOpen(false)}
         />
 
       </div>
