@@ -18,12 +18,27 @@ import { CookieCopilotModal } from './features/ai/CookieCopilotModal';
 import { WalletModal } from './components/wallet/WalletModal';
 
 export const App: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<NavItemId>('dashboard');
+  const getInitialTab = (): NavItemId => {
+    const hash = window.location.hash.replace('#', '') as NavItemId;
+    const validTabs: NavItemId[] = ['dashboard', 'explore', 'das', 'portfolio', 'send', 'stream', 'proof', 'network', 'terminal', 'swap'];
+    if (validTabs.includes(hash)) return hash;
+    const params = new URLSearchParams(window.location.search);
+    const tabParam = params.get('tab') as NavItemId;
+    if (validTabs.includes(tabParam)) return tabParam;
+    return 'dashboard';
+  };
+
+  const [currentTab, setCurrentTabState] = useState<NavItemId>(getInitialTab);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [questsOpen, setQuestsOpen] = useState(false);
-  const [copilotOpen, setCopilotOpen] = useState(false);
+  const [questsOpen, setQuestsOpen] = useState(() => new URLSearchParams(window.location.search).get('modal') === 'quests');
+  const [copilotOpen, setCopilotOpen] = useState(() => new URLSearchParams(window.location.search).get('modal') === 'copilot');
   const [walletModalOpen, setWalletModalOpen] = useState(false);
+
+  const setCurrentTab = (tab: NavItemId) => {
+    setCurrentTabState(tab);
+    window.location.hash = tab;
+  };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
