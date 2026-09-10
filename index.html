@@ -6,11 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CookieForge | The Command Center for Cookie Chain SVM</title>
     <meta name="description" content="High-performance portal, explorer, multi-send stream, DAS inspector, and telemetry terminal for Cookie Chain SVM." />
+    <script>
+      window.global = window;
+      window.process = { env: {} };
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-dark-950 text-slate-100 font-sans antialiased selection:bg-cookie-500/30 selection:text-cookie-300 min-h-screen overflow-x-hidden">
+  <body class="bg-[#07090e] text-slate-100 font-sans antialiased selection:bg-amber-500/30 selection:text-amber-300 min-h-screen overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
