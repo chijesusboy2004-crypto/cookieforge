@@ -28,6 +28,11 @@ export const SendCookView: React.FC = () => {
       return;
     }
 
+    if (!isDemoMode && balance < numAmount) {
+      setErrorMessage(`Insufficient COOK balance (${balance} COOK available). Tip: Switch to Demo Mode in the top bar to test transfers with simulated funds!`);
+      return;
+    }
+
     const validation = txEngine.validateAddress(recipient);
     if (!validation.valid) {
       setErrorMessage(validation.error || 'Invalid recipient address.');
